@@ -6,6 +6,13 @@ using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render proporciona el puerto mediante la variable PORT.
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 // Obtener la cadena de conexión del appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("NeonConnection");
 if (string.IsNullOrWhiteSpace(connectionString) && builder.Environment.IsDevelopment())
