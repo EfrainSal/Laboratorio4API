@@ -16,7 +16,7 @@ public sealed class RankingController(AplicacionDbContext db) : ControllerBase
     {
         if (limite is < 1 or > 100) return BadRequest(new { mensaje = "El límite debe estar entre 1 y 100." });
         var ranking = await db.Rankings.AsNoTracking()
-            .OrderByDescending(r => r.Score).ThenBy(r => r.Time).ThenBy(r => r.Id)
+            .OrderByDescending(r => r.Score).ThenBy(r => r.Id)
             .Take(limite).ToListAsync(cancellationToken);
         return Ok(ranking);
     }

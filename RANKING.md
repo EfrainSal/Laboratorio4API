@@ -4,7 +4,7 @@
 
 La API mantiene las rutas existentes y añade:
 
-- `GET /api/laboratorio/ranking?limite=50`: público, ordenado por puntuación descendente y, en empate, tiempo ascendente; `limite` es opcional, entre 1 y 100. En empate adicional se usa el identificador. Actualmente cada partida genera un registro: no agrupa jugadores ni elimina duplicados.
+- `GET /api/laboratorio/ranking?limite=50`: público, ordenado solo por puntuación descendente; `limite` es opcional, entre 1 y 100. Si hay empate se usa el identificador para dar un orden estable, sin considerar el tiempo. Actualmente cada partida genera un registro: no agrupa jugadores ni elimina duplicados.
 - `POST /api/administracion/ranking`: registra un resultado con el encabezado `X-API-Key` de administrador.
 - `GET /api/administracion/ranking/{id}`: consulta pública del resultado por identificador.
 - `DELETE /api/administracion/ranking/{id}`: elimina un resultado con la clave de administrador.
