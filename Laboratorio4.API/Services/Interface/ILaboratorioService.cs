@@ -1,5 +1,4 @@
-﻿using domain.dto;
-using domain.Helpers;
+using domain.dto;
 namespace Laboratorio4.API.Services.Interface
 {
     public interface ILaboratorioService

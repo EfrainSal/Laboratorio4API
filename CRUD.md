@@ -74,3 +74,11 @@ Los comentarios `//` solo identifican los ejemplos y no forman parte del JSON qu
 - `503 Service Unavailable`: no se ha configurado la clave de administración.
 
 La clave compartida protege las operaciones básicas, pero no es un sistema completo de usuarios y permisos. Para una aplicación de producción que requiera varios administradores se necesitaría autenticación y autorización individual, además de considerar límites de solicitudes y auditoría.
+
+## Usar Swagger desde Visual Studio
+
+En el Explorador de soluciones, haz clic derecho en el proyecto `Laboratorio4.API`, selecciona **Administrar secretos de usuario** y agrega `"Administracion:ApiKey": "TU_CLAVE_LOCAL"` al objeto JSON, conservando las demás claves y usando una coma entre propiedades. No copies la clave de administración al repositorio. Reinicia la API en modo Development.
+
+Abre `/swagger` en la dirección local que muestra Visual Studio. Pulsa **Authorize**, introduce la clave local configurada (sin prefijo), confirma y cierra el cuadro. En un endpoint de `api/administracion`, selecciona `Try it out`, introduce el JSON o identificador y pulsa `Execute`. El campo `X-API-Key` se enviará en POST, PUT y DELETE; GET no requiere clave. `401` indica clave incorrecta y `503` indica que falta configurar la clave del servidor.
+
+Atención: si la conexión local apunta a la misma base de Neon que Render, cualquier POST, PUT o DELETE modificará los datos reales. Verifica el identificador antes de editar o borrar.

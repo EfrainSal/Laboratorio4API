@@ -2,7 +2,11 @@ using Laboratorio4.API.Context;
 using Laboratorio4.API.Services.Interface;
 using Laboratorio4.API.Services.Service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
+using Laboratorio4.API.Security;
 using Npgsql;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,10 +61,37 @@ if (string.IsNullOrWhiteSpace(connectionString))
         "ConnectionStrings__NeonConnection. En desarrollo también puede utilizar .env.local de Neon.");
 }
 
+// Límites globales por instancia. No confiamos en cabeceras IP que se pueden falsificar.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(_ =>
+        RateLimitPartition.GetFixedWindowLimiter("global", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 300, Window = TimeSpan.FromMinutes(1), QueueLimit = 0
+        }));
+    options.AddFixedWindowLimiter("ranking-escritura", limiter =>
+    {
+        limiter.PermitLimit = 30;
+        limiter.Window = TimeSpan.FromMinutes(1);
+        limiter.QueueLimit = 0;
+    });
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Name = "X-API-Key",
+        Description = "Escribe la clave de administración configurada para esta API."
+    });
+    options.DocumentFilter<SwaggerClaveAdministracionFilter>();
+});
 
 // Registrar servicios e inyección de dependencias
 builder.Services.AddScoped<ILaboratorioService, LaboratorioService>();
@@ -98,6 +129,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 
